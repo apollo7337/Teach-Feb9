@@ -43,21 +43,13 @@ export const transcribeAudio = async (base64Data: string, mimeType: string): Pro
 export const generateTeacherScript = async (bio: string, instruction: string = ""): Promise<string> => {
   try {
     const ai = getClient();
-    const systemPrompt = `You are an expert visionary scriptwriter for elite educators. Transform biographies into a conversational, warm, and tactical 20-30 second video script. Approx 60-75 words.`;
-    const prompt = instruction ? `Apply refinement: "${instruction}". Context: "${bio}"` : `Transform this bio: "${bio}"`;
+    
+    // System prompt updated to strictly forbid stage directions and background music
+    const systemPrompt = `You are an expert visionary scriptwriter for elite educators. 
+Transform biographies into a conversational, warm, and tactical 20-30 second video script. 
+Approx 60-75 words. 
+IMPORTANT: Generate the script as dialogue only. Do not include any stage directions, 
+background music descriptions, scene headings, or brackets (e.g., [Music swells]).`;
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash-001', // Updated to supported Gemini 2.0 model
-      contents: prompt,
-      config: {
-        temperature: 0.8,
-        systemInstruction: systemPrompt,
-      }
-    });
-
-    return response.text || '';
-  } catch (error: any) {
-    console.error("Script Generation Error:", error);
-    throw new Error(`Generation failed: ${error.message}`);
-  }
-};
+    const prompt = instruction 
+      ? `Apply refinement: "${instruction}". Context: "${bio}"
