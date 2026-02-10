@@ -46,7 +46,7 @@ export const generateTeacherScript = async (bio: string, instruction: string = "
     
     // System prompt updated to strictly forbid stage directions and background music
     const systemPrompt = `You are an expert visionary scriptwriter for elite educators. 
-Transform biographies into a conversational, warm, and tactical 20-30 second video script. 
+Transform biographies and resumes into a conversational, warm, and tactical 20-30 second video script. 
 Approx 60-75 words. 
 IMPORTANT: Generate the script as dialogue only. Do not include any stage directions, 
 background music descriptions, scene headings, or brackets (e.g., [Music swells]).`;
