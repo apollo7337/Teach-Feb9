@@ -1,11 +1,16 @@
-
 import { GoogleGenAI } from "@google/genai";
 
+/**
+ * Creates a fresh instance of the GenAI client using Vite environment variables.
+ */
 const getClient = () => {
-  const apiKey = process.env.API_KEY;
+  // MUST use import.meta.env for Vite projects on Vercel
+  const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
+
   if (!apiKey) {
-    throw new Error("API Key not found. Please ensure process.env.API_KEY is configured.");
+    throw new Error("API Key not found. Please ensure VITE_GOOGLE_AI_API_KEY is configured in Vercel.");
   }
+
   return new GoogleGenAI({ apiKey });
 };
 
@@ -13,7 +18,7 @@ export const transcribeAudio = async (base64Data: string, mimeType: string): Pro
   try {
     const ai = getClient();
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+      model: 'gemini-2.0-flash-001', // Updated to supported Gemini 2.0 model
       contents: {
         parts: [
           {
@@ -22,53 +27,36 @@ export const transcribeAudio = async (base64Data: string, mimeType: string): Pro
               data: base64Data,
             },
           },
-          { text: "Transcribe this audio bio accurately. Output ONLY the raw text. No labels or metadata." },
+          { text: "Transcribe this audio bio accurately. Only return the text of the transcription." },
         ],
       },
     });
-    
+
     return response.text?.trim() || "";
   } catch (error: any) {
     console.error("Transcription Error:", error);
-    throw new Error(`Transcription failed: ${error.message || "Unknown error"}`);
+    throw new Error(`Transcription failed: ${error.message}`);
   }
 };
 
 export const generateTeacherScript = async (bio: string, instruction: string = ""): Promise<string> => {
   try {
     const ai = getClient();
-    const systemInstruction = `You are a world-class scriptwriter for visionary educators. 
-Draft a high-impact intro script meant for a professional 16:9 landscape video intro.
-
-STRICT SCRIPT STRUCTURE:
-1. Introduction: Who they are and their background.
-2. Expertise: What they teach.
-3. Value Prop: What a student will learn (approach + outcomes).
-
-CRITICAL OUTPUT RULES:
-1. Output ONLY the conversational text meant to be read aloud. 
-2. DO NOT include any labels like "Subject:", "Speaker:", "Estimated Time:", or "Intro:".
-3. DO NOT include any stage directions or camera instructions.
-4. No formatting other than standard punctuation and paragraph breaks.
-5. Target length: 20-30 seconds (roughly 60-80 words).
-6. Tone: Professional, warm, high-energy.`;
-
-    const prompt = instruction 
-      ? `Refinement request: "${instruction}". Original Bio Context: "${bio}"`
-      : `Draft a visionary teacher intro script based on this bio: "${bio}"`;
+    const systemPrompt = `You are an expert visionary scriptwriter for elite educators. Transform biographies into a conversational, warm, and tactical 20-30 second video script. Approx 60-75 words.`;
+    const prompt = instruction ? `Apply refinement: "${instruction}". Context: "${bio}"` : `Transform this bio: "${bio}"`;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-3-pro-preview',
+      model: 'gemini-2.0-flash-001', // Updated to supported Gemini 2.0 model
       contents: prompt,
       config: {
         temperature: 0.8,
-        systemInstruction: systemInstruction,
+        systemInstruction: systemPrompt,
       }
     });
-    
+
     return response.text || '';
   } catch (error: any) {
-    console.error("Generation Error:", error);
-    throw new Error(`Generation failed: ${error.message || "Unknown error"}`);
+    console.error("Script Generation Error:", error);
+    throw new Error(`Generation failed: ${error.message}`);
   }
 };
