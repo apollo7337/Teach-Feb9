@@ -1,0 +1,8 @@
+{
+  "name": "TeacherIntro AI",
+  "description": "A professional tool for educators to transform bios into polished 20-30 second video scripts with a built-in teleprompter.",
+  "requestFramePermissions": [
+    "microphone",
+    "camera"
+  ]
+}
