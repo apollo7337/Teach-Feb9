@@ -4,8 +4,9 @@ import { GoogleGenAI } from "@google/genai";
  * Creates a fresh instance of the GenAI client using Vite environment variables.
  */
 const getClient = () => {
-  // MUST use import.meta.env for Vite projects on Vercel
-  const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
+  // Use a type cast to bypass the TypeScript 'ImportMeta' error
+  const env = (import.meta as any).env;
+  const apiKey = env.VITE_GOOGLE_AI_API_KEY;
 
   if (!apiKey) {
     throw new Error("API Key not found. Please ensure VITE_GOOGLE_AI_API_KEY is configured in Vercel.");
